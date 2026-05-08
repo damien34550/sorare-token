@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorare Scout — MLS 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07080f;--s1:#0d1020;--s2:#111827;--s3:#1a2235;--border:#1f2d47;--border2:#263350;--g:#00f5a0;--g2:#00c88a;--blue:#3b82f6;--purple:#a855f7;--amber:#f59e0b;--red:#ef4444;--text:#e2e8f0;--muted:#5a7090;--muted2:#8099b8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;overflow-x:hidden}
+
+header{background:linear-gradient(180deg,#0a0e1a,rgba(10,14,26,.96));border-bottom:1px solid var(--border);padding:.85rem 1.5rem;display:flex;align-items:center;gap:.75rem;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);flex-wrap:wrap}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:4px;color:var(--g);text-shadow:0 0 40px rgba(0,245,160,.3)}
+.logo em{color:#fff;font-style:normal}
+
+/* GW SELECTOR */
+.gw-selector{display:flex;align-items:center;gap:.5rem;background:var(--s3);border:1px solid var(--border2);border-radius:10px;padding:.3rem .5rem}
+.gw-selector label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;white-space:nowrap}
+.gw-selector select{background:transparent;border:none;color:var(--g);font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;cursor:pointer;outline:none}
+.gw-selector select option{background:var(--s2);color:var(--text)}
+.updated-pill{background:var(--s1);border:1px solid var(--border);color:var(--muted);padding:.22rem .65rem;border-radius:20px;font-size:.65rem;font-family:'JetBrains Mono',monospace}
+
+.nav{display:flex;gap:.2rem;background:var(--s1);border-bottom:1px solid var(--border);padding:.45rem 1.5rem;overflow-x:auto}
+.nav::-webkit-scrollbar{height:3px}.nav::-webkit-scrollbar-thumb{background:var(--border2)}
+.nav-btn{white-space:nowrap;padding:.42rem .95rem;border-radius:6px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:500;transition:.2s}
+.nav-btn.active{background:var(--s3);color:var(--g);font-weight:600}
+.nav-btn:hover:not(.active){color:var(--text)}
+
+.panel{display:none;max-width:1300px;margin:0 auto;padding:1.5rem}
+.panel.active{display:block}
+
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;letter-spacing:2px;color:var(--g);margin-bottom:.9rem;display:flex;align-items:center;gap:.7rem}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:.8rem}
+
+.pc{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:1rem;transition:all .2s;position:relative;overflow:hidden}
+.pc:hover{transform:translateY(-2px);border-color:rgba(0,245,160,.3);box-shadow:0 8px 28px rgba(0,0,0,.5)}
+.pc-glow{position:absolute;top:0;left:0;right:0;height:2px;border-radius:12px 12px 0 0}
+.pc.GK .pc-glow{background:linear-gradient(90deg,var(--amber),#f97316)}
+.pc.DEF .pc-glow{background:linear-gradient(90deg,var(--blue),#06b6d4)}
+.pc.MID .pc-glow{background:linear-gradient(90deg,var(--purple),#ec4899)}
+.pc.FWD .pc-glow{background:linear-gradient(90deg,var(--red),#f97316)}
+.pc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem}
+.pc-name{font-size:.9rem;font-weight:700;margin-bottom:.2rem;line-height:1.2}
+.pc-meta{display:flex;gap:.35rem;align-items:center;flex-wrap:wrap;margin-bottom:.28rem}
+.pos-tag{font-family:'JetBrains Mono',monospace;font-size:.58rem;font-weight:700;padding:.1rem .4rem;border-radius:3px}
+.pos-tag.GK{background:rgba(245,158,11,.15);color:var(--amber)}
+.pos-tag.DEF{background:rgba(59,130,246,.15);color:var(--blue)}
+.pos-tag.MID{background:rgba(168,85,247,.15);color:var(--purple)}
+.pos-tag.FWD{background:rgba(239,68,68,.15);color:var(--red)}
+.club-tag{font-size:.62rem;color:var(--muted2)}
+.avg-big{font-family:'Bebas Neue',sans-serif;font-size:2.6rem;line-height:1;text-align:right}
+.avg-big.s-elite{color:var(--g);text-shadow:0 0 20px rgba(0,245,160,.4)}
+.avg-big.s-good{color:var(--amber)}
+.avg-big.s-ok{color:var(--text)}
+.avg-big.s-bad{color:var(--red)}
+.avg-lbl{font-size:.55rem;color:var(--muted);text-align:right}
+.pc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.38rem;margin-bottom:.6rem}
+.stat-b{background:var(--s1);border-radius:6px;padding:.38rem .42rem;text-align:center}
+.stat-b .v{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700}
+.stat-b .l{font-size:.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:1px}
+.stat-b.hi .v{color:var(--g)}
+.stat-b.warn .v{color:var(--amber)}
+.mu-bar{background:var(--s1);border-radius:6px;padding:.38rem .52rem;margin-bottom:.52rem;display:flex;justify-content:space-between;align-items:center}
+.mu-opp{font-size:.68rem;color:var(--muted2)}
+.mu-score{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.7rem}
+.mu-easy{color:var(--g)}.mu-medium{color:var(--amber)}.mu-hard{color:var(--red)}
+.spark-wrap{margin-top:.5rem}
+.spark-lbl{font-size:.53rem;color:var(--muted);margin-bottom:.18rem}
+.sparkline{display:flex;gap:2px;align-items:flex-end;height:24px}
+.spk{flex:1;border-radius:1px;min-height:2px}
+.pick-badge{display:inline-flex;align-items:center;gap:.25rem;border-radius:20px;padding:.14rem .48rem;font-size:.57rem;font-weight:700;letter-spacing:.3px;margin-top:.3rem}
+.pick-yes{background:rgba(0,245,160,.08);border:1px solid rgba(0,245,160,.25);color:var(--g)}
+.pick-no{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:var(--red)}
+.pick-mid{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);color:var(--amber)}
+.ps-bar-wrap{margin-top:.48rem}
+.ps-bar-label{display:flex;justify-content:space-between;font-size:.58rem;color:var(--muted);margin-bottom:.18rem}
+.ps-bar-bg{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.ps-bar-fill{height:100%;border-radius:2px;transition:width .5s ease}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:.7rem;margin-bottom:1.3rem}
+.kpi{background:var(--s2);border:1px solid var(--border);border-radius:11px;padding:.9rem;text-align:center}
+.kpi-v{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--g)}
+.kpi-l{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-top:.12rem}
+
+.filter-bar{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:.72rem .95rem;margin-bottom:.9rem;display:flex;gap:.6rem;flex-wrap:wrap;align-items:flex-end}
+.fg{display:flex;flex-direction:column;gap:.26rem}
+.fg label{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.7px}
+.fg select,.fg input{background:var(--s3);border:1px solid var(--border2);border-radius:7px;color:var(--text);padding:.38rem .6rem;font-size:.78rem;font-family:'Space Grotesk',sans-serif;cursor:pointer}
+.fg select:focus,.fg input:focus{outline:none;border-color:var(--g)}
+
+.pos-selector{display:flex;gap:.4rem;margin-bottom:1.1rem;flex-wrap:wrap}
+.pos-btn{padding:.42rem 1.1rem;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted2);cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.8rem;transition:.2s}
+.pos-btn:hover{border-color:var(--g);color:var(--text)}
+.pos-btn.active{border-color:var(--g);color:var(--g);background:rgba(0,245,160,.08)}
+
+.pick-list{display:flex;flex-direction:column;gap:.55rem}
+.pick-row{background:var(--s2);border:1px solid var(--border);border-radius:11px;padding:.85rem 1.05rem;display:flex;align-items:center;gap:.85rem;transition:border .2s}
+.pick-row:hover{border-color:rgba(0,245,160,.3)}
+.pick-rank{font-family:'Bebas Neue',sans-serif;font-size:1.65rem;min-width:2.2rem;text-align:center}
+.r1{color:var(--g)}.r2{color:var(--amber)}.r3{color:var(--blue)}.rn{color:var(--border2)}
+.pick-info{flex:1}
+.pick-info h3{font-size:.88rem;font-weight:700;margin-bottom:.16rem}
+.pick-info p{font-size:.67rem;color:var(--muted2)}
+.pick-metrics{display:flex;gap:.9rem;text-align:center}
+.pm .pv{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:700}
+.pm .pl{font-size:.53rem;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-top:1px}
+
+/* ===== COMPOSITION SORARE ===== */
+.compo-header{background:rgba(0,245,160,.05);border:1px solid rgba(0,245,160,.2);border-radius:12px;padding:1rem 1.3rem;margin-bottom:1.2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem}
+.compo-field{display:grid;gap:.75rem;margin-bottom:1.2rem}
+.compo-row{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
+.compo-slot{flex:1;min-width:180px;max-width:260px;background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:.9rem;transition:border .2s}
+.compo-slot.best{border-color:rgba(0,245,160,.4);background:rgba(0,245,160,.03)}
+.compo-slot.extra{border-color:rgba(168,85,247,.3)}
+.compo-slot-label{font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:.4rem;display:flex;align-items:center;gap:.3rem}
+.compo-slot-name{font-weight:700;font-size:.9rem;margin-bottom:.18rem}
+.compo-slot-club{font-size:.67rem;color:var(--muted2);margin-bottom:.3rem}
+.compo-slot-stats{display:flex;gap:.75rem;font-size:.68rem}
+.compo-empty{background:var(--s1);border:2px dashed var(--border2);border-radius:12px;padding:1.5rem;text-align:center;color:var(--muted);font-size:.78rem}
+.extra-options{display:flex;gap:.65rem;flex-wrap:wrap;margin-bottom:1rem}
+.extra-opt-btn{padding:.35rem .85rem;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--muted2);cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.78rem;transition:.2s}
+.extra-opt-btn.active{border-color:var(--purple);color:var(--purple);background:rgba(168,85,247,.08)}
+
+/* SCORING */
+.score-tabs{display:flex;gap:.35rem;margin-bottom:1rem;flex-wrap:wrap}
+.score-tab{padding:.3rem .82rem;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:.74rem;font-family:'Space Grotesk',sans-serif;transition:.2s}
+.score-tab.active{background:var(--s3);color:var(--g);border-color:var(--g)}
+.score-table{width:100%;border-collapse:collapse;font-size:.77rem}
+.score-table th{background:var(--s3);color:var(--muted2);font-weight:600;padding:.52rem .82rem;text-align:left;font-size:.67rem;text-transform:uppercase;letter-spacing:.4px}
+.score-table td{padding:.48rem .82rem;border-bottom:1px solid var(--border)}
+.score-table tr:hover td{background:var(--s3)}
+.pts-pos{color:var(--g);font-family:'JetBrains Mono',monospace;font-weight:700}
+.pts-neg{color:var(--red);font-family:'JetBrains Mono',monospace;font-weight:700}
+
+.notice{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:.82rem .95rem;font-size:.78rem;color:#93c5fd;margin-bottom:1rem;line-height:1.6}
+.notice strong{color:var(--blue)}
+.notice.warn{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.2);color:#fcd34d}
+.notice.warn strong{color:var(--amber)}
+.notice.ok{background:rgba(0,245,160,.06);border-color:rgba(0,245,160,.25);color:#6ee7c2}
+.notice.ok strong{color:var(--g)}
+
+.empty{text-align:center;padding:3rem 2rem;color:var(--muted)}
+.empty .ei{font-size:2rem;margin-bottom:.6rem}
+.empty h3{font-size:.95rem;color:var(--muted2);margin-bottom:.3rem}
+
+#loader{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.4rem}
+.l-logo{font-family:'Bebas Neue',sans-serif;font-size:2.3rem;letter-spacing:5px;color:var(--g)}
+.l-bar{width:200px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.l-fill{height:100%;background:var(--g);border-radius:2px;animation:lf 1.6s ease-in-out infinite}
+@keyframes lf{0%{width:0;margin-left:0}50%{width:100%}100%{width:0;margin-left:100%}}
+.l-txt{font-size:.76rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
+
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="l-logo">SORARE SCOUT</div>
+  <div class="l-bar"><div class="l-fill"></div></div>
+  <div class="l-txt" id="lTxt">Chargement MLS 2026...</div>
+</div>
+
+<header>
+  <div class="logo">SORARE<em>SCOUT</em></div>
+  <div class="gw-selector">
+    <label>Game Week</label>
+    <select id="gwSelect" onchange="onGWChange()">
+      <option value="">Chargement...</option>
+    </select>
+  </div>
+  <div class="updated-pill" id="updatedPill">—</div>
+</header>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="switchTab('dashboard',this)">📊 Dashboard</button>
+  <button class="nav-btn" onclick="switchTab('pick',this)">🎯 Pick par Poste</button>
+  <button class="nav-btn" onclick="switchTab('gallery',this)">🎴 Tous les Joueurs</button>
+  <button class="nav-btn" onclick="switchTab('compo',this)">⚽ Composition</button>
+  <button class="nav-btn" onclick="switchTab('scoring',this)">📋 Guide Scoring</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="panel active" id="panel-dashboard">
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-v" id="k1">—</div><div class="kpi-l">Joueurs MLS</div></div>
+    <div class="kpi"><div class="kpi-v" id="k2">—</div><div class="kpi-l">Élite (moy 70+)</div></div>
+    <div class="kpi"><div class="kpi-v" id="k3">—</div><div class="kpi-l">% matchs 70pts+</div></div>
+    <div class="kpi"><div class="kpi-v" id="k4">—</div><div class="kpi-l">CS rate GK</div></div>
+    <div class="kpi"><div class="kpi-v" id="k5">—</div><div class="kpi-l">Équipes</div></div>
+  </div>
+  <div class="sec-title">🏆 Top 8 Picks — <span id="dashGWLabel" style="color:#fff;font-size:1rem;font-family:'Space Grotesk',sans-serif;font-weight:500;letter-spacing:0"></span></div>
+  <div class="cards-grid" id="dashTop"></div>
+</div>
+
+<!-- PICK -->
+<div class="panel" id="panel-pick">
+  <div class="notice"><strong>🎯 Score Pick :</strong> Moyenne (30%) + % 70pts+ (30%) + match-up adversaire (20%) + plancher (20%). GK/DEF : bonus CS projeté. Change la GW en haut pour anticiper les prochaines semaines.</div>
+  <div class="filter-bar">
+    <div class="fg"><label>Club</label>
+      <select id="pickClub" onchange="renderPick()"><option value="">Tous</option></select>
+    </div>
+    <div class="fg"><label>Critère</label>
+      <select id="pickCrit" onchange="renderPick()">
+        <option value="score">Score Pick (recommandé)</option>
+        <option value="avg">Meilleure moyenne</option>
+        <option value="pct70">% 70pts+</option>
+        <option value="floor">Plancher (sécurité)</option>
+        <option value="l5">Forme récente (L5)</option>
+        <option value="csp">CS projeté (GK/DEF)</option>
+      </select>
+    </div>
+  </div>
+  <div class="pos-selector">
+    <button class="pos-btn active" onclick="pickPos('ALL',this)">🌐 Tous</button>
+    <button class="pos-btn" onclick="pickPos('GK',this)">🧤 Gardiens</button>
+    <button class="pos-btn" onclick="pickPos('DEF',this)">🛡️ Défenseurs</button>
+    <button class="pos-btn" onclick="pickPos('MID',this)">⚡ Milieux</button>
+    <button class="pos-btn" onclick="pickPos('FWD',this)">⚽ Attaquants</button>
+  </div>
+  <div id="pickList"></div>
+</div>
+
+<!-- GALLERY -->
+<div class="panel" id="panel-gallery">
+  <div class="filter-bar">
+    <div class="fg"><label>Club</label>
+      <select id="gallClub" onchange="renderGallery()"><option value="">Tous</option></select>
+    </div>
+    <div class="fg"><label>Poste</label>
+      <select id="gallPos" onchange="renderGallery()">
+        <option value="">Tous</option>
+        <option value="GK">🧤 GK</option>
+        <option value="DEF">🛡️ DEF</option>
+        <option value="MID">⚡ MID</option>
+        <option value="FWD">⚽ FWD</option>
+      </select>
+    </div>
+    <div class="fg"><label>Moy. min.</label>
+      <input type="number" id="gallMin" placeholder="0" style="width:72px" onchange="renderGallery()">
+    </div>
+    <div class="fg"><label>% 70+ min.</label>
+      <input type="number" id="gall70" placeholder="0" style="width:72px" onchange="renderGallery()">
+    </div>
+    <div class="fg"><label>Tri</label>
+      <select id="gallSort" onchange="renderGallery()">
+        <option value="score">Score Pick</option>
+        <option value="avg">Moyenne</option>
+        <option value="pct70">% 70pts+</option>
+        <option value="floor">Plancher</option>
+        <option value="l5">Forme L5</option>
+      </select>
+    </div>
+  </div>
+  <div id="gallCount" style="font-size:.72rem;color:var(--muted);margin-bottom:.7rem"></div>
+  <div class="cards-grid" id="galleryGrid"></div>
+  <div class="empty" id="gallEmpty" style="display:none"><div class="ei">🔍</div><h3>Aucun joueur trouvé</h3><p>Modifie les filtres</p></div>
+</div>
+
+<!-- COMPOSITION SORARE -->
+<div class="panel" id="panel-compo">
+  <div class="notice ok">
+    <strong>⚽ Format Sorare SO5 :</strong> 1 GK + 1 DEF + 1 MID + 1 FWD + 1 EXTRA (DEF, MID ou FWD). Clique sur chaque poste pour choisir ton joueur.
+  </div>
+  <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center">
+    <div class="fg"><label>Tri suggestions</label>
+      <select id="compoCrit" onchange="renderCompoSlots()">
+        <option value="score">Score Pick</option>
+        <option value="avg">Moyenne</option>
+        <option value="pct70">% 70pts+</option>
+        <option value="floor">Plancher</option>
+        <option value="l5">Forme L5</option>
+      </select>
+    </div>
+    <div class="fg"><label>Club filtre</label>
+      <select id="compoClubFilter" onchange="renderCompoSlots()"><option value="">Tous</option></select>
+    </div>
+    <button class="btn" style="background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25);margin-top:1rem" onclick="resetCompo()">🗑️ Réinitialiser</button>
+  </div>
+  <div id="compoOut"></div>
+  <div id="compoPickerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:300;overflow-y:auto;padding:1rem">
+    <div style="max-width:700px;margin:0 auto;background:var(--s2);border:1px solid var(--border2);border-radius:16px;padding:1.5rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;color:var(--g)" id="pickerTitle">Choisir un joueur</div>
+        <button onclick="closeCompoModal()" style="background:var(--s3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.4rem .8rem;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:.85rem">✕ Fermer</button>
+      </div>
+      <input type="text" id="pickerSearch" placeholder="🔍 Rechercher un joueur..." onInput="filterPickerList()" style="width:100%;background:var(--s3);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:.6rem .9rem;font-size:.85rem;font-family:'Space Grotesk',sans-serif;margin-bottom:.75rem">
+      <div id="pickerList" style="display:flex;flex-direction:column;gap:.4rem;max-height:60vh;overflow-y:auto"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCORING GUIDE -->
+<div class="panel" id="panel-scoring">
+  <div class="notice"><strong>📋 Grille officielle Sorare :</strong> Score total = Decisive Score (DS) + All-Around Score (AAS). Le DS part de 35pts (titulaire = niveau 0).</div>
+  <div class="score-tabs">
+    <button class="score-tab active" onclick="showScore('ds',this)">⚡ Decisive Score</button>
+    <button class="score-tab" onclick="showScore('aas',this)">📊 All-Around</button>
+    <button class="score-tab" onclick="showScore('cs',this)">🧤 Clean Sheet</button>
+    <button class="score-tab" onclick="showScore('dd',this)">🛡️ Double/Triple</button>
+    <button class="score-tab" onclick="showScore('strat',this)">🧠 Stratégie</button>
+  </div>
+  <div id="scoreContent"></div>
+</div>
+
+<script>
+// ===== STATE =====
+let players = [];
+let schedules = {};
+let currentGW = '';
+let currentPickPos = 'ALL';
+
+// ===== LOAD DATA =====
+async function loadData() {
+  try {
+    const res = await fetch('./sorare-data.json?' + Date.now());
+    if(!res.ok) throw new Error('not found');
+    const data = await res.json();
+    players = data.players || [];
+    schedules = data.schedules || {};
+    currentGW = data.currentGW || Object.keys(schedules)[0] || '';
+    populateGWSelector();
+    populateClubs();
+    document.getElementById('updatedPill').textContent = 'MLS 2026';
+    document.getElementById('loader').style.display = 'none';
+    renderAll();
+  } catch(e) {
+    document.getElementById('lTxt').textContent = 'Erreur chargement — vérifie sorare-data.json';
+  }
+}
+
+function populateGWSelector() {
+  const sel = document.getElementById('gwSelect');
+  sel.innerHTML = Object.entries(schedules).map(([k,v]) =>
+    `<option value="${k}" ${k===currentGW?'selected':''}>${v.label}</option>`
+  ).join('');
+}
+
+function onGWChange() {
+  currentGW = document.getElementById('gwSelect').value;
+  renderAll();
+}
+
+function getOpponent(p) {
+  return p[`opp_${currentGW}`] || p.opponent || '';
+}
+
+// ===== STATS =====
+function calcStats(p) {
+  const pl = (p.scores||[]).filter(s=>s>0);
+  if(!pl.length) return {avg:0,pct70:0,floor:0,ceil:0,games:0,l5avg:0};
+  const avg = pl.reduce((a,b)=>a+b,0)/pl.length;
+  const l5 = pl.slice(-5);
+  return {
+    avg: Math.round(avg*10)/10,
+    pct70: Math.round(pl.filter(s=>s>=70).length/pl.length*100),
+    floor: Math.min(...pl), ceil: Math.max(...pl),
+    games: pl.length,
+    l5avg: Math.round(l5.reduce((a,b)=>a+b,0)/l5.length*10)/10
+  };
+}
+
+const STRONG = ['lafc','la galaxy','seattle sounders','nashville sc','fc cincinnati','columbus crew','philadelphia union','portland timbers','inter miami','new england revolution'];
+const WEAK = ['toronto fc','dc united','san jose earthquakes','colorado rapids','chicago fire','st. louis city','houston dynamo','austin fc'];
+
+function getMatchup(p) {
+  const o = getOpponent(p).toLowerCase();
+  if(!o || o === 'bye') return 50;
+  if(WEAK.some(t=>o.includes(t))) return 80;
+  if(STRONG.some(t=>o.includes(t))) return 25;
+  return 55;
+}
+
+function getCSProj(p) {
+  const s = calcStats(p);
+  const csR = s.games>0 ? (p.cs||0)/s.games*100 : 0;
+  return Math.round(csR*0.6 + getMatchup(p)*0.4);
+}
+
+function getPickScore(p) {
+  const s = calcStats(p);
+  if(!s.games) return 0;
+  const mu = getMatchup(p);
+  let sc = s.avg*0.30 + s.pct70*0.30 + mu*0.20 + Math.min(100,s.floor)*0.20;
+  if(p.pos==='GK'||p.pos==='DEF') sc = sc*0.8 + getCSProj(p)*0.2;
+  return Math.round(sc*10)/10;
+}
+
+function scClass(a) { return a>=70?'s-elite':a>=55?'s-good':a>=40?'s-ok':'s-bad'; }
+function spkColor(s) { return s>=70?'#00f5a0':s>=55?'#f59e0b':s>=35?'#64748b':'#ef4444'; }
+
+function renderCard(p) {
+  const s = calcStats(p);
+  const ps = getPickScore(p);
+  const mu = getMatchup(p);
+  const csp = (p.pos==='GK'||p.pos==='DEF') ? getCSProj(p) : null;
+  const opp = getOpponent(p);
+  const isTop = ps>=62&&s.pct70>=35;
+  const isOk = ps>=48;
+
+  const pl = (p.scores||[]).filter(v=>v>0);
+  const mx = Math.max(...pl,1);
+  const sparks = pl.slice(-12).map(sv => {
+    const h = Math.max(3,Math.round(sv/mx*24));
+    return `<div class="spk" title="${sv}pts" style="height:${h}px;background:${spkColor(sv)}"></div>`;
+  }).join('');
+
+  const extra = csp!==null
+    ? `<div class="stat-b ${csp>=55?'hi':csp>=35?'warn':''}"><div class="v">${csp}%</div><div class="l">CS proj.</div></div>`
+    : `<div class="stat-b"><div class="v">${s.l5avg}</div><div class="l">Forme L5</div></div>`;
+
+  const muC = mu>=65?'mu-easy':mu>=40?'mu-medium':'mu-hard';
+  const badge = isTop?`<div class="pick-badge pick-yes">⭐ TOP PICK</div>`:isOk?`<div class="pick-badge pick-mid">✅ Correct</div>`:`<div class="pick-badge pick-no">⚠️ Risqué</div>`;
+  const psColor = ps>=62?'var(--g)':ps>=45?'var(--amber)':'var(--red)';
+
+  return `<div class="pc ${p.pos}">
+    <div class="pc-glow"></div>
+    <div class="pc-head">
+      <div style="flex:1">
+        <div class="pc-name">${p.name}</div>
+        <div class="pc-meta">
+          <span class="pos-tag ${p.pos}">${p.pos}</span>
+          <span class="club-tag">${p.club}</span>
+        </div>
+        ${badge}
+      </div>
+      <div>
+        <div class="avg-big ${scClass(s.avg)}">${s.avg||'–'}</div>
+        <div class="avg-lbl">moy pts</div>
+      </div>
+    </div>
+    <div class="pc-stats">
+      <div class="stat-b ${s.pct70>=40?'hi':s.pct70>=25?'warn':''}"><div class="v">${s.pct70}%</div><div class="l">≥70pts</div></div>
+      <div class="stat-b"><div class="v">${s.floor}</div><div class="l">Plancher</div></div>
+      ${extra}
+    </div>
+    ${opp&&opp!=='BYE'?`<div class="mu-bar"><span class="mu-opp">vs ${opp}</span><span class="mu-score ${muC}">${mu}/100</span></div>`:''}
+    <div class="spark-wrap">
+      <div class="spark-lbl">${s.games} matchs joués</div>
+      <div class="sparkline">${sparks||'<span style="font-size:.6rem;color:var(--muted)">Aucun match</span>'}</div>
+    </div>
+    <div class="ps-bar-wrap">
+      <div class="ps-bar-label"><span>Score Pick</span><span style="color:${psColor};font-family:'JetBrains Mono',monospace;font-weight:700">${ps}</span></div>
+      <div class="ps-bar-bg"><div class="ps-bar-fill" style="width:${Math.min(100,ps)}%;background:${psColor}"></div></div>
+    </div>
+  </div>`;
+}
+
+// ===== TABS =====
+function switchTab(t, el) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+t).classList.add('active');
+  el.classList.add('active');
+  if(t==='dashboard') renderDashboard();
+  if(t==='gallery') renderGallery();
+  if(t==='pick') renderPick();
+  if(t==='compo') renderCompo();
+  if(t==='scoring') showScore('ds', document.querySelector('.score-tab'));
+}
+
+function renderAll() {
+  renderDashboard();
+  const active = document.querySelector('.panel.active');
+  if(active?.id==='panel-pick') renderPick();
+  if(active?.id==='panel-gallery') renderGallery();
+  if(active?.id==='panel-compo') renderCompo();
+}
+
+// ===== DASHBOARD =====
+function renderDashboard() {
+  document.getElementById('k1').textContent = players.length;
+  document.getElementById('k2').textContent = players.filter(p=>calcStats(p).avg>=70).length;
+  const a70 = players.map(p=>calcStats(p).pct70);
+  document.getElementById('k3').textContent = (a70.length?Math.round(a70.reduce((a,b)=>a+b,0)/a70.length):0)+'%';
+  const gks = players.filter(p=>p.pos==='GK'&&calcStats(p).games>0);
+  const csr = gks.map(p=>calcStats(p).games>0?(p.cs||0)/calcStats(p).games*100:0);
+  document.getElementById('k4').textContent = (csr.length?Math.round(csr.reduce((a,b)=>a+b,0)/csr.length):0)+'%';
+  document.getElementById('k5').textContent = [...new Set(players.map(p=>p.club))].length;
+  const gwLabel = schedules[currentGW]?.label || currentGW;
+  document.getElementById('dashGWLabel').textContent = gwLabel;
+  const top = [...players].sort((a,b)=>getPickScore(b)-getPickScore(a)).slice(0,8);
+  document.getElementById('dashTop').innerHTML = top.map(p=>renderCard(p)).join('');
+}
+
+// ===== CLUBS =====
+function populateClubs() {
+  const clubs = [...new Set(players.map(p=>p.club))].sort();
+  ['gallClub','pickClub'].forEach(id => {
+    const s = document.getElementById(id);
+    if(!s) return;
+    const cur = s.value;
+    s.innerHTML = '<option value="">Tous</option>' + clubs.map(c=>`<option value="${c}"${c===cur?' selected':''}>${c}</option>`).join('');
+  });
+}
+
+// ===== GALLERY =====
+function renderGallery() {
+  const club = document.getElementById('gallClub').value;
+  const pos = document.getElementById('gallPos').value;
+  const mn = parseFloat(document.getElementById('gallMin').value)||0;
+  const m70 = parseFloat(document.getElementById('gall70').value)||0;
+  const srt = document.getElementById('gallSort').value;
+  let f = [...players].filter(p => {
+    const s = calcStats(p);
+    return (!club||p.club===club)&&(!pos||p.pos===pos)&&s.avg>=mn&&s.pct70>=m70;
+  }).sort((a,b)=>{
+    if(srt==='avg') return calcStats(b).avg-calcStats(a).avg;
+    if(srt==='pct70') return calcStats(b).pct70-calcStats(a).pct70;
+    if(srt==='score') return getPickScore(b)-getPickScore(a);
+    if(srt==='floor') return calcStats(b).floor-calcStats(a).floor;
+    if(srt==='l5') return calcStats(b).l5avg-calcStats(a).l5avg;
+    return 0;
+  });
+  document.getElementById('gallCount').textContent = `${f.length} joueur${f.length>1?'s':''} trouvé${f.length>1?'s':''}`;
+  document.getElementById('gallEmpty').style.display = f.length?'none':'block';
+  document.getElementById('galleryGrid').innerHTML = f.map(p=>renderCard(p)).join('');
+}
+
+// ===== PICK =====
+function pickPos(pos, el) {
+  currentPickPos = pos;
+  document.querySelectorAll('.pos-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderPick();
+}
+
+function getCritFn() {
+  const c = document.getElementById('pickCrit').value;
+  return p => {
+    const s = calcStats(p);
+    if(c==='avg') return s.avg;
+    if(c==='pct70') return s.pct70;
+    if(c==='floor') return s.floor;
+    if(c==='l5') return s.l5avg;
+    if(c==='csp') return (p.pos==='GK'||p.pos==='DEF')?getCSProj(p):0;
+    return getPickScore(p);
+  };
+}
+
+function renderPick() {
+  const club = document.getElementById('pickClub').value;
+  let pool = [...players].filter(p=>!club||p.club===club);
+  // Filter out BYE teams
+  pool = pool.filter(p=>getOpponent(p)!=='BYE');
+  const fn = getCritFn();
+  const posLabel = {GK:'🧤 Gardiens',DEF:'🛡️ Défenseurs',MID:'⚡ Milieux',FWD:'⚽ Attaquants'};
+  const el = document.getElementById('pickList');
+  if(currentPickPos !== 'ALL') {
+    const sorted = pool.filter(p=>p.pos===currentPickPos).sort((a,b)=>fn(b)-fn(a));
+    el.innerHTML = `<div class="pick-list">${sorted.map((p,i)=>renderPickRow(p,i+1,fn)).join('')}</div>`;
+  } else {
+    el.innerHTML = ['GK','DEF','MID','FWD'].map(pos=>{
+      const gp = pool.filter(p=>p.pos===pos).sort((a,b)=>fn(b)-fn(a));
+      if(!gp.length) return '';
+      return `<div style="margin-bottom:1.4rem">
+        <div class="sec-title">${posLabel[pos]}</div>
+        <div class="pick-list">${gp.slice(0,5).map((p,i)=>renderPickRow(p,i+1,fn)).join('')}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+function renderPickRow(p, rank, fn) {
+  const s = calcStats(p);
+  const ps = getPickScore(p);
+  const mu = getMatchup(p);
+  const opp = getOpponent(p);
+  const rc = rank===1?'r1':rank===2?'r2':rank===3?'r3':'rn';
+  const muC = mu>=65?'var(--g)':mu>=40?'var(--amber)':'var(--red)';
+  const psC = ps>=62?'var(--g)':ps>=45?'var(--amber)':'var(--red)';
+  const sp = (p.pos==='GK'||p.pos==='DEF')
+    ? `<div class="pm"><div class="pv" style="color:${getCSProj(p)>=50?'var(--g)':getCSProj(p)>=30?'var(--amber)':'var(--red)'}">${getCSProj(p)}%</div><div class="pl">CS proj.</div></div>`
+    : `<div class="pm"><div class="pv">${s.l5avg}</div><div class="pl">L5</div></div>`;
+  return `<div class="pick-row">
+    <div class="pick-rank ${rc}">#${rank}</div>
+    <div class="pick-info">
+      <h3>${p.name} <span class="pos-tag ${p.pos}" style="font-size:.54rem">${p.pos}</span></h3>
+      <p>${p.club}${opp&&opp!=='BYE'?` · vs <strong style="color:${muC}">${opp}</strong>`:' · <span style="color:var(--red)">BYE</span>'}</p>
+    </div>
+    <div class="pick-metrics">
+      <div class="pm"><div class="pv" style="color:${scClass(s.avg)==='s-elite'?'var(--g)':scClass(s.avg)==='s-good'?'var(--amber)':'var(--text)'}">${s.avg}</div><div class="pl">Moy.</div></div>
+      <div class="pm"><div class="pv" style="color:${s.pct70>=40?'var(--g)':'var(--text)'}">${s.pct70}%</div><div class="pl">70+</div></div>
+      ${sp}
+      <div class="pm"><div class="pv" style="font-size:.95rem;color:${psC}">${ps}</div><div class="pl">Pick</div></div>
+    </div>
+  </div>`;
+}
+
+// ===== COMPOSITION SORARE SO5 INTERACTIVE =====
+let compoSelection = { GK: null, DEF: null, MID: null, FWD: null, EXTRA: null };
+let pickerCurrentSlot = null;
+
+function resetCompo() {
+  compoSelection = { GK: null, DEF: null, MID: null, FWD: null, EXTRA: null };
+  renderCompoSlots();
+}
+
+function openCompoModal(slot) {
+  pickerCurrentSlot = slot;
+  const posFilter = slot === 'EXTRA' ? ['DEF','MID','FWD'] : [slot];
+  const crit = document.getElementById('compoCrit').value;
+  const clubF = document.getElementById('compoClubFilter').value;
+  const fn = getCritFnCompo(crit);
+  document.getElementById('pickerTitle').textContent = slot === 'EXTRA' ? '⚡ Choisir EXTRA (DEF/MID/FWD)' : `Choisir ${slot}`;
+  document.getElementById('pickerSearch').value = '';
+  const pool = [...players]
+    .filter(p => posFilter.includes(p.pos) && (!clubF || p.club === clubF))
+    .filter(p => getOpponent(p) !== 'BYE')
+    .sort((a,b) => fn(b) - fn(a));
+  renderPickerList(pool);
+  document.getElementById('compoPickerModal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function renderPickerList(pool) {
+  const el = document.getElementById('pickerList');
+  if(!pool.length) { el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:2rem">Aucun joueur trouvé</div>'; return; }
+  el.innerHTML = pool.map(p => {
+    const s = calcStats(p); const ps = getPickScore(p); const opp = getOpponent(p);
+    const mu = getMatchup(p); const muC = mu>=65?'var(--g)':mu>=40?'var(--amber)':'var(--red)';
+    const csp = (p.pos==='GK'||p.pos==='DEF') ? getCSProj(p) : null;
+    const isSelected = Object.values(compoSelection).some(x => x?.id === p.id);
+    return `<div onclick="selectPlayer('${p.id}')" style="background:${isSelected?'rgba(0,245,160,.08)':'var(--s3)'};border:1px solid ${isSelected?'rgba(0,245,160,.4)':'var(--border)'};border-radius:10px;padding:.75rem 1rem;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:.85rem" onmouseover="this.style.borderColor='rgba(0,245,160,.4)'" onmouseout="this.style.borderColor='${isSelected?'rgba(0,245,160,.4)':'var(--border)'}'">
+      <div>
+        <span class="pos-tag ${p.pos}">${p.pos}</span>
+      </div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:.88rem">${p.name} ${isSelected?'<span style="color:var(--g);font-size:.6rem">✓ SÉLECTIONNÉ</span>':''}</div>
+        <div style="font-size:.65rem;color:var(--muted2)">${p.club}${opp&&opp!=='BYE'?` · vs <span style="color:${muC}">${opp}</span>`:''}</div>
+      </div>
+      <div style="display:flex;gap:.7rem;text-align:center;flex-shrink:0">
+        <div><div style="font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;color:${scClass(s.avg)==='s-elite'?'var(--g)':scClass(s.avg)==='s-good'?'var(--amber)':'var(--text)'}">${s.avg}</div><div style="font-size:.5rem;color:var(--muted)">MOY</div></div>
+        <div><div style="font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;color:${s.pct70>=40?'var(--g)':'var(--text)'}">${s.pct70}%</div><div style="font-size:.5rem;color:var(--muted)">70+</div></div>
+        ${csp!==null?`<div><div style="font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;color:${csp>=50?'var(--g)':csp>=30?'var(--amber)':'var(--red)'}">${csp}%</div><div style="font-size:.5rem;color:var(--muted)">CS</div></div>`:''}
+        <div><div style="font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;color:${ps>=62?'var(--g)':ps>=45?'var(--amber)':'var(--red)'}">${ps}</div><div style="font-size:.5rem;color:var(--muted)">PICK</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterPickerList() {
+  const q = document.getElementById('pickerSearch').value.toLowerCase();
+  const posFilter = pickerCurrentSlot === 'EXTRA' ? ['DEF','MID','FWD'] : [pickerCurrentSlot];
+  const crit = document.getElementById('compoCrit').value;
+  const fn = getCritFnCompo(crit);
+  const pool = [...players]
+    .filter(p => posFilter.includes(p.pos) && (p.name.toLowerCase().includes(q) || p.club.toLowerCase().includes(q)))
+    .sort((a,b) => fn(b) - fn(a));
+  renderPickerList(pool);
+}
+
+function selectPlayer(id) {
+  const p = players.find(x => x.id === id);
+  if(!p) return;
+  // Remove from other slots if already selected
+  Object.keys(compoSelection).forEach(k => { if(compoSelection[k]?.id === id) compoSelection[k] = null; });
+  compoSelection[pickerCurrentSlot] = p;
+  closeCompoModal();
+  renderCompoSlots();
+}
+
+function closeCompoModal() {
+  document.getElementById('compoPickerModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function getCritFnCompo(c) {
+  return p => {
+    const s = calcStats(p);
+    if(c==='avg') return s.avg;
+    if(c==='pct70') return s.pct70;
+    if(c==='floor') return s.floor;
+    if(c==='l5') return s.l5avg;
+    return getPickScore(p);
+  };
+}
+
+function renderCompoSlots() {
+  // Populate club filter
+  const clubs = [...new Set(players.map(p=>p.club))].sort();
+  const cf = document.getElementById('compoClubFilter');
+  const curClub = cf.value;
+  cf.innerHTML = '<option value="">Tous</option>' + clubs.map(c=>`<option value="${c}"${c===curClub?' selected':''}>${c}</option>`).join('');
+
+  const gwLabel = schedules[currentGW]?.label || currentGW;
+  const all5 = ['GK','DEF','MID','FWD','EXTRA'].map(k=>compoSelection[k]).filter(Boolean);
+  const avgs = all5.map(p=>calcStats(p).avg).filter(v=>v>0);
+  const teamAvg = avgs.length?(avgs.reduce((a,b)=>a+b,0)/avgs.length).toFixed(1):'–';
+  const pscores = all5.map(p=>getPickScore(p));
+  const teamPS = pscores.length?(pscores.reduce((a,b)=>a+b,0)/pscores.length).toFixed(1):'–';
+
+  const slotDef = [
+    {key:'GK', label:'🧤 Gardien', pos:['GK']},
+    {key:'DEF', label:'🛡️ Défenseur', pos:['DEF']},
+    {key:'MID', label:'⚡ Milieu', pos:['MID']},
+    {key:'FWD', label:'⚽ Attaquant', pos:['FWD']},
+    {key:'EXTRA', label:'🔀 Extra (DEF/MID/FWD)', pos:['DEF','MID','FWD'], isExtra:true},
+  ];
+
+  document.getElementById('compoOut').innerHTML = `
+    <div class="compo-header">
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px">Composition SO5 — ${gwLabel}</div>
+        <div style="font-size:.7rem;color:var(--muted2)">${all5.length}/5 joueurs sélectionnés · Clique sur un poste pour choisir</div>
+      </div>
+      <div style="display:flex;gap:1.5rem;text-align:center">
+        <div><div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--g)">${teamAvg}</div><div style="font-size:.58rem;color:var(--muted)">MOY ÉQUIPE</div></div>
+        <div><div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--amber)">${teamPS}</div><div style="font-size:.58rem;color:var(--muted)">SCORE PICK</div></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem;margin-bottom:1.5rem">
+      ${slotDef.map(({key,label,isExtra}) => {
+        const p = compoSelection[key];
+        if(!p) return `<div onclick="openCompoModal('${key}')" style="background:var(--s1);border:2px dashed var(--border2);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:.2s;color:var(--muted)" onmouseover="this.style.borderColor='rgba(0,245,160,.5)';this.style.color='var(--g)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--muted)'">
+          <div style="font-size:1.5rem;margin-bottom:.4rem">${label.split(' ')[0]}</div>
+          <div style="font-size:.78rem;font-weight:600">${label.split(' ').slice(1).join(' ')}</div>
+          <div style="font-size:.65rem;margin-top:.3rem">Clique pour choisir</div>
+        </div>`;
+        const s = calcStats(p); const ps = getPickScore(p); const opp = getOpponent(p);
+        const mu = getMatchup(p); const muC = mu>=65?'var(--g)':mu>=40?'var(--amber)':'var(--red)';
+        const csp = (p.pos==='GK'||p.pos==='DEF') ? getCSProj(p) : null;
+        const psC = ps>=62?'var(--g)':ps>=45?'var(--amber)':'var(--red)';
+        return `<div style="background:var(--s2);border:1px solid rgba(0,245,160,.35);border-radius:12px;padding:.9rem;position:relative">
+          <div style="font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.3rem">${label}${isExtra?'':''}</div>
+          <div style="font-weight:700;font-size:.92rem;margin-bottom:.15rem">${p.name}</div>
+          <div style="font-size:.65rem;color:var(--muted2);margin-bottom:.4rem">${p.club}${opp&&opp!=='BYE'?` · <span style="color:${muC}">vs ${opp}</span>`:''}</div>
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.5rem">
+            <div style="font-size:.7rem">Moy: <strong style="color:${scClass(s.avg)==='s-elite'?'var(--g)':scClass(s.avg)==='s-good'?'var(--amber)':'var(--text)'}">${s.avg}</strong></div>
+            <div style="font-size:.7rem">70+: <strong style="color:${s.pct70>=40?'var(--g)':'var(--muted2)'}">${s.pct70}%</strong></div>
+            ${csp!==null?`<div style="font-size:.7rem">CS: <strong style="color:${csp>=50?'var(--g)':csp>=30?'var(--amber)':'var(--red)'}">${csp}%</strong></div>`:''}
+            <div style="font-size:.7rem">Pick: <strong style="color:${psC}">${ps}</strong></div>
+          </div>
+          <div style="display:flex;gap:.4rem">
+            <button onclick="openCompoModal('${key}')" style="flex:1;padding:.3rem;border-radius:6px;border:1px solid var(--border2);background:var(--s3);color:var(--text);cursor:pointer;font-size:.7rem;font-family:'Space Grotesk',sans-serif">✏️ Changer</button>
+            <button onclick="compoSelection['${key}']=null;renderCompoSlots()" style="padding:.3rem .5rem;border-radius:6px;border:1px solid rgba(239,68,68,.25);background:rgba(239,68,68,.08);color:var(--red);cursor:pointer;font-size:.7rem">✕</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// Keep old renderCompo as alias
+function renderCompo() {
+  renderCompoSlots();
+}
+
+function renderCompo_OLD() {
+  const crit = 'score';
+  const extraPref = 'best';
+  const maxClub = 5;
+
+  const fn = p => {
+    const s = calcStats(p);
+    if(crit==='avg') return s.avg;
+    if(crit==='pct70') return s.pct70;
+    if(crit==='floor') return s.floor;
+    if(crit==='l5') return s.l5avg;
+    return getPickScore(p);
+  };
+
+  // Filter out BYE
+  const pool = players.filter(p=>getOpponent(p)!=='BYE');
+  const clubCount = {};
+  const used = new Set();
+
+  function getBest(pos, count=1) {
+    const cands = pool
+      .filter(p=>p.pos===pos&&!used.has(p.id)&&(clubCount[p.club]||0)<maxClub)
+      .sort((a,b)=>fn(b)-fn(a));
+    const picked = cands.slice(0,count);
+    picked.forEach(p=>{ used.add(p.id); clubCount[p.club]=(clubCount[p.club]||0)+1; });
+    return picked;
+  }
+
+  const gk = getBest('GK',1)[0];
+  const def = getBest('DEF',1)[0];
+  const mid = getBest('MID',1)[0];
+  const fwd = getBest('FWD',1)[0];
+
+  // EXTRA: pick best from DEF/MID/FWD
+  let extra = null;
+  if(extraPref === 'best') {
+    const candidates = [
+      ...pool.filter(p=>['DEF','MID','FWD'].includes(p.pos)&&!used.has(p.id)&&(clubCount[p.club]||0)<maxClub)
+    ].sort((a,b)=>fn(b)-fn(a));
+    extra = candidates[0] || null;
+  } else {
+    const candidates = pool
+      .filter(p=>p.pos===extraPref&&!used.has(p.id)&&(clubCount[p.club]||0)<maxClub)
+      .sort((a,b)=>fn(b)-fn(a));
+    extra = candidates[0] || null;
+  }
+
+  const all5 = [gk,def,mid,fwd,extra].filter(Boolean);
+  const avgs = all5.map(p=>calcStats(p).avg).filter(v=>v>0);
+  const teamAvg = avgs.length ? (avgs.reduce((a,b)=>a+b,0)/avgs.length).toFixed(1) : '–';
+  const pscores = all5.map(p=>getPickScore(p));
+  const teamPS = pscores.length ? (pscores.reduce((a,b)=>a+b,0)/pscores.length).toFixed(1) : '–';
+  const gwLabel = schedules[currentGW]?.label || currentGW;
+
+  function slotHTML(p, label, isExtra=false) {
+    if(!p) return `<div class="compo-empty">❌ Aucun joueur dispo pour ce poste</div>`;
+    const s = calcStats(p);
+    const ps = getPickScore(p);
+    const opp = getOpponent(p);
+    const mu = getMatchup(p);
+    const muC = mu>=65?'var(--g)':mu>=40?'var(--amber)':'var(--red)';
+    const psC = ps>=62?'var(--g)':ps>=45?'var(--amber)':'var(--red)';
+    const csp = (p.pos==='GK'||p.pos==='DEF') ? getCSProj(p) : null;
+    return `<div class="compo-slot best ${isExtra?'extra':''}">
+      <div class="compo-slot-label">
+        <span class="pos-tag ${p.pos}">${p.pos}</span>
+        ${label}${isExtra?' · <span style="color:var(--purple)">EXTRA</span>':''}
+      </div>
+      <div class="compo-slot-name">${p.name}</div>
+      <div class="compo-slot-club">${p.club}${opp&&opp!=='BYE'?` · <span style="color:${muC}">vs ${opp}</span>`:''}</div>
+      <div class="compo-slot-stats">
+        <div>Moy: <strong style="color:${scClass(s.avg)==='s-elite'?'var(--g)':scClass(s.avg)==='s-good'?'var(--amber)':'var(--text)'}">${s.avg}</strong></div>
+        <div>70+: <strong style="color:${s.pct70>=40?'var(--g)':'var(--muted2)'}">${s.pct70}%</strong></div>
+        ${csp!==null?`<div>CS: <strong style="color:${csp>=50?'var(--g)':csp>=30?'var(--amber)':'var(--red)'}">${csp}%</strong></div>`:''}
+        <div>Pick: <strong style="color:${psC}">${ps}</strong></div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('compoOut').innerHTML = `
+    <div class="compo-header">
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px">Composition SO5 — ${gwLabel}</div>
+        <div style="font-size:.7rem;color:var(--muted2)">GK + DEF + MID + FWD + EXTRA · Critère: ${crit}</div>
+      </div>
+      <div style="display:flex;gap:1.5rem;text-align:center">
+        <div><div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--g)">${teamAvg}</div><div style="font-size:.58rem;color:var(--muted)">MOY ÉQUIPE</div></div>
+        <div><div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--amber)">${teamPS}</div><div style="font-size:.58rem;color:var(--muted)">SCORE PICK</div></div>
+      </div>
+    </div>
+
+    <div class="compo-field">
+      <div class="compo-row">
+        ${slotHTML(gk,'Gardien')}
+      </div>
+      <div class="compo-row">
+        ${slotHTML(def,'Défenseur')}
+        ${slotHTML(mid,'Milieu')}
+        ${slotHTML(fwd,'Attaquant')}
+      </div>
+      <div class="compo-row">
+        ${slotHTML(extra,'Extra',true)}
+      </div>
+    </div>
+
+    <div class="sec-title" style="margin-top:.5rem">📋 Alternatives par poste</div>
+    ${['GK','DEF','MID','FWD'].map(pos=>{
+      const alts = pool.filter(p=>p.pos===pos).sort((a,b)=>fn(b)-fn(a)).slice(0,3);
+      const posLabel={GK:'🧤 Gardiens',DEF:'🛡️ Défenseurs',MID:'⚡ Milieux',FWD:'⚽ Attaquants'};
+      return `<div style="margin-bottom:1rem">
+        <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:.5rem">${posLabel[pos]}</div>
+        <div style="display:flex;flex-direction:column;gap:.4rem">
+          ${alts.map((p,i)=>{
+            const s=calcStats(p);const ps=getPickScore(p);const opp=getOpponent(p);const mu=getMatchup(p);
+            const muC=mu>=65?'var(--g)':mu>=40?'var(--amber)':'var(--red)';
+            const isSelected=[gk,def,mid,fwd,extra].some(x=>x?.id===p.id);
+            return `<div style="background:${isSelected?'rgba(0,245,160,.05)':'var(--s2)'};border:1px solid ${isSelected?'rgba(0,245,160,.3)':'var(--border)'};border-radius:8px;padding:.55rem .8rem;display:flex;align-items:center;gap:.75rem">
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:${i===0?'var(--g)':i===1?'var(--amber)':'var(--border2)'}">#${i+1}</div>
+              <div style="flex:1">
+                <div style="font-weight:700;font-size:.82rem">${p.name} ${isSelected?'<span style="color:var(--g);font-size:.6rem">✓ SÉLECTIONNÉ</span>':''}</div>
+                <div style="font-size:.65rem;color:var(--muted2)">${p.club}${opp&&opp!=='BYE'?` · vs <span style="color:${muC}">${opp}</span>`:''}</div>
+              </div>
+              <div style="display:flex;gap:.8rem;text-align:center">
+                <div><div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;color:${scClass(s.avg)==='s-elite'?'var(--g)':'var(--text)'}">${s.avg}</div><div style="font-size:.5rem;color:var(--muted)">MOY</div></div>
+                <div><div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;color:${s.pct70>=40?'var(--g)':'var(--text)'}">${s.pct70}%</div><div style="font-size:.5rem;color:var(--muted)">70+</div></div>
+                <div><div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;color:${ps>=62?'var(--g)':ps>=45?'var(--amber)':'var(--red)'}">${ps}</div><div style="font-size:.5rem;color:var(--muted)">PICK</div></div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+// ===== SCORING GUIDE =====
+const SCORES = {
+  ds:`<table class="score-table"><thead><tr><th>Niveau DS</th><th>Score</th><th>Actions</th></tr></thead><tbody>
+    <tr><td>Niveau -3</td><td class="pts-neg">0 pts</td><td>Double carton + très mauvaise perf.</td></tr>
+    <tr><td>Niveau -2</td><td class="pts-neg">5 pts</td><td>Carton rouge + erreur grave</td></tr>
+    <tr><td>Niveau -1</td><td class="pts-neg">20 pts</td><td>Carton rouge seul</td></tr>
+    <tr><td>⭐ Niveau 0</td><td>35 pts</td><td>Titulaire (base) / Entrant en cours de match</td></tr>
+    <tr><td>Niveau 1</td><td class="pts-pos">45 pts</td><td>1 but OU 1 passe déc. OU clean sheet (GK/DEF 60min+)</td></tr>
+    <tr><td>Niveau 2</td><td class="pts-pos">70 pts</td><td>2 buts / 2 passes / 1 but + 1 passe / CS + contribution</td></tr>
+    <tr><td>Niveau 3</td><td class="pts-pos">85 pts</td><td>3 buts / 2 buts + 1 passe / hat-trick assists</td></tr>
+    <tr><td>Niveau 4+</td><td class="pts-pos">95 pts</td><td>Performance exceptionnelle (4+ buts...)</td></tr>
+  </tbody></table>
+  <div class="notice" style="margin-top:1rem"><strong>💡 Clé :</strong> But + passe déc. = Niveau 2 = <strong>70pts minimum</strong> avant l'AAS. C'est le seuil magique Sorare — priorise les joueurs qui l'atteignent souvent (% 70+ élevé).</div>`,
+  aas:`<table class="score-table"><thead><tr><th>Action</th><th>Points AAS</th><th>Poste</th></tr></thead><tbody>
+    <tr><td>Grande chance créée</td><td class="pts-pos">+3</td><td>MID/FWD</td></tr>
+    <tr><td>Passe clé</td><td class="pts-pos">+2</td><td>MID/FWD</td></tr>
+    <tr><td>Tir cadré</td><td class="pts-pos">+1</td><td>Tous</td></tr>
+    <tr><td>Dribble réussi</td><td class="pts-pos">+1</td><td>Tous</td></tr>
+    <tr><td>Interception</td><td class="pts-pos">+1</td><td>DEF/MID</td></tr>
+    <tr><td>Tacle réussi</td><td class="pts-pos">+1</td><td>DEF/MID</td></tr>
+    <tr><td>Duel gagné</td><td class="pts-pos">+0.5</td><td>Tous</td></tr>
+    <tr><td>Arrêt gardien (normal)</td><td class="pts-pos">+1 à +3</td><td>GK</td></tr>
+    <tr><td>Arrêt décisif</td><td class="pts-pos">+5</td><td>GK</td></tr>
+    <tr><td>Tir non cadré</td><td class="pts-neg">-0.5</td><td>Tous</td></tr>
+    <tr><td>Duel perdu</td><td class="pts-neg">-0.5</td><td>Tous</td></tr>
+    <tr><td>Faute commise</td><td class="pts-neg">-1</td><td>Tous</td></tr>
+    <tr><td>Erreur menant à un but</td><td class="pts-neg">-5</td><td>Tous</td></tr>
+    <tr><td>Penalty accordé</td><td class="pts-neg">-5</td><td>DEF/GK</td></tr>
+    <tr><td>But contre son camp</td><td class="pts-neg">-10</td><td>Tous</td></tr>
+  </tbody></table>`,
+  cs:`<div class="notice ok"><strong>🧤 Clean Sheet :</strong> Accordé si le joueur joue <strong>60+ minutes</strong> et que son équipe ne prend aucun but.</div>
+  <table class="score-table"><thead><tr><th>Poste</th><th>Bonus CS</th><th>Effet sur DS</th></tr></thead><tbody>
+    <tr><td>🧤 Gardien</td><td class="pts-pos">+1 niveau</td><td>35 → 45 pts automatiquement</td></tr>
+    <tr><td>🛡️ Défenseur</td><td class="pts-pos">+1 niveau</td><td>35 → 45 pts automatiquement</td></tr>
+    <tr><td>⚡ Milieu</td><td class="pts-pos">+3 pts AAS</td><td>Pas de changement de niveau DS</td></tr>
+    <tr><td>⚽ Attaquant</td><td>Aucun bonus</td><td>–</td></tr>
+  </tbody></table>
+  <div class="notice" style="margin-top:1rem"><strong>🎯 CS Projeté :</strong> L'app calcule une probabilité de CS basée sur l'historique du joueur (60%) + la force offensive de l'adversaire (40%). Score 80+ = bonne chance de CS ce GW.</div>`,
+  dd:`<div class="notice"><strong>🛡️ Double/Triple (DEF uniquement) :</strong> Bonus basé sur 3 catégories — interceptions, tacles gagnés, duels nets.</div>
+  <table class="score-table"><thead><tr><th>Bonus</th><th>Condition</th><th>Points AAS</th></tr></thead><tbody>
+    <tr><td>Double-Double</td><td>≥2 dans 2 catégories sur 3</td><td class="pts-pos">+4 pts</td></tr>
+    <tr><td>Triple-Double</td><td>≥2 dans les 3 catégories</td><td class="pts-pos">+6 pts</td></tr>
+    <tr><td>Triple-Triple</td><td>≥3 dans les 3 catégories</td><td class="pts-pos">+12 pts</td></tr>
+  </tbody></table>
+  <div class="notice" style="margin-top:1rem"><strong>💡 Astuce :</strong> DEF actif + CS + Triple-Triple = facilement <strong>70+ pts</strong>. Cherche les défenseurs qui font beaucoup de tacles et interceptions par match.</div>`,
+  strat:`<div class="sec-title" style="margin-bottom:1rem">🎯 Stratégie par Poste — MLS</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem">
+    ${[
+      {p:'GK',c:'rgba(245,158,11,.2)',col:'var(--amber)',i:'🧤',tips:[['✅','CS historique élevé (priorité n°1)'],['✅','Adversaire faible offensivement'],['✅','Équipe défensivement solide (peu de buts encaissés)'],['✅','Match à domicile si possible'],['❌','Éviter adversaire LAFC/Inter Miami/Seattle'],['❌','Éviter GK avec erreurs récentes (CSC, penalties)']]},
+      {p:'DEF',c:'rgba(59,130,246,.2)',col:'var(--blue)',i:'🛡️',tips:[['✅','CS projeté élevé + Double/Triple régulier'],['✅','DEF très actif (tacles, interceptions)'],['✅','Adversaire sans attaquant dangereux'],['✅','Latéral offensif avec passes clés'],['❌','Éviter DEF passif sans contribution défensive'],['❌','Éviter adversaire avec top FWD (Messi, Vela...)']]},
+      {p:'MID',c:'rgba(168,85,247,.2)',col:'var(--purple)',i:'⚡',tips:[['✅','Passe clé + grande chance créée régulièrement'],['✅','MID qui tire (tirs cadrés boostent l\'AAS)'],['✅','60min+ garantis (titulaire régulier)'],['✅','Adversaire avec ligne défensive haute'],['❌','Éviter MID défensif sans contribution offensive'],['❌','Éviter joueur souvent remplacé avant 60min']]},
+      {p:'FWD',c:'rgba(239,68,68,.2)',col:'var(--red)',i:'⚽',tips:[['✅','% 70+ ≥ 40% — critère absolu n°1'],['✅','Adversaire faible défensivement'],['✅','Titulaire régulier confirmé (pas de rotation)'],['✅','Impliqué sur buts ou passes décisives'],['❌','Éviter FWD sans créateurs derrière lui'],['❌','Éviter adversaire avec top GK + défense solide']]}
+    ].map(({p,c,col,i,tips})=>`
+      <div style="background:var(--s2);border:1px solid ${c};border-radius:11px;padding:1rem">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.05rem;color:${col};margin-bottom:.65rem">${i} ${p}</div>
+        ${tips.map(([e,t])=>`<div style="font-size:.74rem;margin-bottom:.3rem;line-height:1.4">${e} ${t}</div>`).join('')}
+      </div>`).join('')}
+  </div>`
+};
+
+function showScore(t, el) {
+  document.querySelectorAll('.score-tab').forEach(b=>b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('scoreContent').innerHTML = SCORES[t]||'';
+}
+
+// ===== INIT =====
+loadData();
+</script>
+</body>
+</html>
